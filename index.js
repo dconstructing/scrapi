@@ -13,7 +13,6 @@ var Baas = function(config) {
 	var app = express();
 
 	app.use(bodyParser.json());
-	app.use('/', router);
 
 	var getPort = function() {
 		var promise = new Promise(function(resolve, reject) {
@@ -29,7 +28,14 @@ var Baas = function(config) {
 		return promise;
 	};
 
+	this.addCommand = function(resourceType, command, callback) {
+		var path = '/' + resourceType + '/:resourceId/' + command;
+		router.post(path, callback);
+	};
+
 	this.start = function() {
+		app.use('/', router);
+
 		if (!port) {
 			getPort().then(function(desiredPort) {
 				app.listen(desiredPort, function() {
