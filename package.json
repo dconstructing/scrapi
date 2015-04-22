@@ -1,0 +1,21 @@
+{
+  "name": "baas",
+  "version": "0.0.0",
+  "description": "Modular Backend as a Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "baas"
+  ],
+  "author": "David Cox <losttime.shuffle@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.12.3",
+    "express": "^4.12.3",
+    "nedb": "^1.1.2",
+    "portscanner": "^1.0.0",
+    "promise": "^7.0.0"
+  }
+}
