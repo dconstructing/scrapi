@@ -3,6 +3,7 @@ var express = require('express');
 var portscanner = require('portscanner');
 var Promise = require('promise');
 // custom
+var client = require('./lib/client');
 var router = require('./lib/router');
 
 var Baas = function(config) {
@@ -26,6 +27,10 @@ var Baas = function(config) {
 			}
 		});
 		return promise;
+	};
+
+	this.getClient = function() {
+		return client;
 	};
 
 	this.addCommand = function(resourceType, command, callback) {
