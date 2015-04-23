@@ -14,6 +14,8 @@ var Baas = function(config) {
 	var app = express();
 
 	app.use(bodyParser.json());
+	router.staticRoute('/public', config.static.dir);
+	router.defaultRoute(config.static.dir);
 
 	var getPort = function() {
 		var promise = new Promise(function(resolve, reject) {
@@ -35,11 +37,11 @@ var Baas = function(config) {
 
 	this.addCommand = function(resourceType, command, callback) {
 		var path = '/' + resourceType + '/:resourceId/' + command;
-		router.post(path, callback);
+		router.addPost(path, callback);
 	};
 
 	this.start = function() {
-		app.use('/', router);
+		router.attach('/', app);
 
 		if (!port) {
 			getPort().then(function(desiredPort) {
