@@ -4,6 +4,7 @@
   "description": "Modular Backend as a Service",
   "main": "index.js",
   "scripts": {
+    "build": "cp -Rf bower_components/* public/lib/",
     "test": "mocha"
   },
   "keywords": [

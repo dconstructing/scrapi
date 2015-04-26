@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="/baas/lib/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="/baas/lib/polymer/polymer.html">
+    <link rel="import" href="/baas/lib/core-drawer-panel/core-drawer-panel.html">
+    <link rel="import" href="/baas/lib/core-header-panel/core-header-panel.html">
+    <link rel="import" href="/baas/lib/core-item/core-item.html">
+    <link rel="import" href="/baas/lib/core-menu/core-menu.html">
+    <link rel="import" href="/baas/lib/core-pages/core-pages.html">
+    <link rel="import" href="/baas/lib/core-toolbar/core-toolbar.html">
+    <link rel="import" href="/baas/lib/google-signin/google-signin.html">
+    <link rel="import" href="/baas/lib/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="/baas/components/baas-user/baas-user.html">
+
+    <link rel="import" href="routes.html">
+
+    <style>
+      core-pages section {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body unresolved>
+    <div id="result"></div>
+    <template id="main" is="auto-binding">
+      <core-drawer-panel>
+        <core-header-panel drawer>
+          <core-toolbar>Main</core-toolbar>
+          <template if="{{accessPermitted(userData)}}">
+            <more-route-selector>
+              <core-menu>
+                <core-item icon="dashboard" label="Dashboard" route="home">
+                </core-item>
+                <core-item icon="settings-input-antenna" label="Users" route="users">
+                </core-item>
+              </core-menu>
+            </more-route-selector>
+          </template>
+        </core-header-panel>
+        <core-header-panel main>
+          <core-toolbar>
+            <paper-icon-button icon="menu" core-drawer-toggle></paper-icon-button>
+            <div flex>Baas</div>
+            <google-signin clientId="985826165186-iichhauleh34tfcgu01a1n0ptdabjd0o.apps.googleusercontent.com" scopes="https://www.googleapis.com/auth/plus.login email" on-google-signin-success="{{signedIn}}" on-google-signin-failure="{{notSignedIn}}" on-google-signed-out="{{signedOut}}"></google-signin>
+          </core-toolbar>
+          <div class="container" fit vertical layout>
+            <more-route-selector>
+              <core-pages flex>
+                <section route="home">
+                  <p>Welcome to Baas Dashboard!</p>
+                </section>
+                <section route="users">
+                  <template if="{{accessPermitted(userData)}}">
+                    <template repeat="{{user in users}}">
+                      <baas-user mote="{{user}}"></baas-user>
+                    </template>
+                  </template>
+                </section>
+              </core-pages>
+            </more-route-selector>
+          </div>
+        </core-header-panel>
+      </core-drawer-panel>
+    </template>
+    <script>
+      var Baas = function() {
+        this.authenticateUser = function(token, callback) {
+          var payload = {
+            service: 'google',
+            token: token
+          };
+
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', '/auth/social', true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.onload = function(e) {
+            var data = JSON.parse(this.response);
+            callback(data);
+          };
+          xhr.send(JSON.stringify(payload));
+        };
+      };
+
+      var baas = new Baas();
+
+      var template = document.getElementById('main');
+      template.userData = {};
+      template.motes = {};
+      template.signedIn = function(event, detail, sender) {
+        console.log('signed in', detail);
+        if (detail.user.isSignedIn && detail.user.isSignedIn()) {
+          baas.authenticateUser(detail.user.getAuthResponse().access_token, function(data) {
+            console.log('callback data', data);
+            template.userData = data;
+          });
+        }
+      };
+      template.notSignedIn = function(event, detail, sender) {
+        console.log('not signed in', detail);
+      };
+      template.signedOut = function(event, detail, sender) {
+        template.userData = {};
+        // clearData();
+      };
+      template.accessPermitted = function(userData) {
+        // do something to actually check access
+        if (userData.permissions && userData.permissions.admin) {
+          return true;
+        }
+        return false;
+      };
+    </script>
+  </body>
+</html>
