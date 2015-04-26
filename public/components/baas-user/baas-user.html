@@ -1,111 +1,25 @@
 <link rel="import" href="../../lib/polymer/polymer.html">
 
-<polymer-element name="baas-user" attributes="mote">
+<polymer-element name="baas-user" attributes="user">
 <template>
 	<style>
 		:host {
 			display: block;
 		}
-		paper-shadow {
-			padding: 10px;
-		}
 		h1 {
 			margin: 0px;
 		}
-		h2 {
-			color: #e33;
-			margin: 0px;
-		}
-		paper-button {
-			bottom: 10px;
-			margin: 0 auto;
-			position: absolute;
-			right: 10px;
-		}
-		paper-button.colored {
-			background: #4285f4;
-			color: #fff;
-		}
-		paper-button[disabled] {
-			background: #eaeaea;
-			color: #a8a8a8;
-			cursor: auto;
-			pointer-events: none;
-		}
 	</style>
 
-	<core-ajax id="xhr" method="POST" url="/command" contentType="application/json" on-core-response="{{commandResponse}}"></core-ajax>
-
-	<paper-shadow z="1">
-		<h1>{{mote.name}}</h1>
-		<h2>{{mote.state | nameFilter}}</h2>
-		<paper-button raised disabled?="{{isDisabled(mote.state)}}" class="colored" on-click="{{stateClicked}}">{{mote.state | nextAction}}</paper-button>
-	</paper-shadow>
+	<h1>{{user.email}}</h1>
 </template>
 <script>
 	(function() {
 		Polymer({
 			created: function() {
-				this.mote = {
-					id: null,
-					name: 'nameless',
-					state: 'unknown'
+				this.user = {
+					permissions: {}
 				};
-			},
-
-			stateClicked: function(event, detail, sender) {
-				console.log('change state');
-				this.$.xhr.body = JSON.stringify({
-					mote: this.mote,
-					command: 'changeState'
-				});
-				this.$.xhr.go();
-			},
-			commandResponse: function(event, detail, sender) {
-				console.log('command response');
-			},
-
-			isDisabled: function(state) {
-				// if (state === 2 || state === 4) {
-					// return true;
-				// }
-				return false;
-			},
-
-			nextAction: function(state) {
-				var name;
-				switch(state) {
-					case 1:
-						name = 'open';
-						break;
-					case 3:
-						name = 'close';
-						break;
-					default:
-						name = '...';
-				}
-				return name;
-			},
-
-			nameFilter: function(state) {
-				var name;
-				switch(state) {
-					case 1:
-						name = 'closed';
-						break;
-					case 2:
-						name = 'opening';
-						break;
-					case 3:
-						name = 'open';
-						break;
-					case 4:
-						name = 'closing';
-						break;
-					default:
-						name = 'unknown';
-				}
-				return name;
 			}
 		});
 	})();

@@ -13,7 +13,7 @@
     <link rel="import" href="/baas/lib/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="/baas/components/baas-user/baas-user.html">
 
-    <link rel="import" href="routes.html">
+    <link rel="import" href="/baas/routes.html">
 
     <style>
       core-pages section {
@@ -53,7 +53,7 @@
                 <section route="users">
                   <template if="{{accessPermitted(userData)}}">
                     <template repeat="{{user in users}}">
-                      <baas-user mote="{{user}}"></baas-user>
+                      <baas-user user="{{user}}"></baas-user>
                     </template>
                   </template>
                 </section>
@@ -86,13 +86,14 @@
 
       var template = document.getElementById('main');
       template.userData = {};
-      template.motes = {};
+      template.users = {};
       template.signedIn = function(event, detail, sender) {
         console.log('signed in', detail);
         if (detail.user.isSignedIn && detail.user.isSignedIn()) {
           baas.authenticateUser(detail.user.getAuthResponse().access_token, function(data) {
             console.log('callback data', data);
             template.userData = data;
+            loadData();
           });
         }
       };
@@ -109,6 +110,17 @@
           return true;
         }
         return false;
+      };
+
+      var loadData = function() {
+        if (template.accessPermitted(template.userData)) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', '/users', true);
+          xhr.onload = function(e) {
+            template.users = JSON.parse(this.response);
+          };
+          xhr.send();
+        }
       };
     </script>
   </body>
