@@ -53,7 +53,7 @@
                 <section route="users">
                   <template if="{{accessPermitted(userData)}}">
                     <template repeat="{{user in users}}">
-                      <baas-user user="{{user}}"></baas-user>
+                      <baas-user user="{{user}}" on-user-updated="{{userUpdated}}"></baas-user>
                     </template>
                   </template>
                 </section>
@@ -111,6 +111,15 @@
         }
         return false;
       };
+      template.userUpdated = function(event, details, sender) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT', '/users/' + details._id, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function(e) {
+          console.log('put', this.response);
+        };
+        xhr.send(JSON.stringify(details));
+      }
 
       var loadData = function() {
         if (template.accessPermitted(template.userData)) {

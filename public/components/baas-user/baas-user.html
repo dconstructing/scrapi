@@ -1,5 +1,7 @@
 <link rel="import" href="../../lib/polymer/polymer.html">
 
+<link rel="import" href="../../lib/paper-checkbox/paper-checkbox.html">
+
 <polymer-element name="baas-user" attributes="user">
 <template>
 	<style>
@@ -11,7 +13,12 @@
 		}
 	</style>
 
-	<h1>{{user.email}}</h1>
+	<div>
+		<p>{{user.email}}</p>
+		<div>
+			<paper-checkbox label="Admin" on-change="{{adminChanged}}" checked?={{user.permissions.admin}}></paper-checkbox>
+		</div>
+	</div>
 </template>
 <script>
 	(function() {
@@ -20,6 +27,12 @@
 				this.user = {
 					permissions: {}
 				};
+			},
+
+			adminChanged: function(event, details, sender) {
+				console.log('details', details);
+				this.user.permissions.admin = sender.checked;
+				this.fire('user-updated', this.user);
 			}
 		});
 	})();
