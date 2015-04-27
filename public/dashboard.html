@@ -65,10 +65,10 @@
     </template>
     <script>
       var Baas = function() {
-        this.authenticateUser = function(token, callback) {
+        this.authenticateUser = function(unverifiedToken, callback) {
           var payload = {
             service: 'google',
-            token: token
+            token: unverifiedToken
           };
 
           var xhr = new XMLHttpRequest();
@@ -84,13 +84,16 @@
 
       var baas = new Baas();
 
+      var token;
+
       var template = document.getElementById('main');
       template.userData = {};
       template.users = {};
       template.signedIn = function(event, detail, sender) {
         console.log('signed in', detail);
         if (detail.user.isSignedIn && detail.user.isSignedIn()) {
-          baas.authenticateUser(detail.user.getAuthResponse().access_token, function(data) {
+          token = detail.user.getAuthResponse().access_token;
+          baas.authenticateUser(token, function(data) {
             console.log('callback data', data);
             template.userData = data;
             loadData();
@@ -114,6 +117,7 @@
       template.userUpdated = function(event, details, sender) {
         var xhr = new XMLHttpRequest();
         xhr.open('PUT', '/users/' + details._id, true);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function(e) {
           console.log('put', this.response);
@@ -125,6 +129,7 @@
         if (template.accessPermitted(template.userData)) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', '/users', true);
+          xhr.setRequestHeader('Authorization', 'Bearer ' + token);
           xhr.onload = function(e) {
             template.users = JSON.parse(this.response);
           };
