@@ -3,6 +3,7 @@ var express = require('express');
 var portscanner = require('portscanner');
 var Promise = require('promise');
 // custom
+var auth = require('./lib/auth');
 var client = require('./lib/client');
 var router = require('./lib/router');
 
@@ -16,6 +17,7 @@ var Baas = function(config) {
 	app.use(bodyParser.json());
 	router.staticRoute('/public', config.static.dir);
 	router.defaultRoute(config.static.dir);
+	auth.configure(config.auth);
 
 	var getPort = function() {
 		var promise = new Promise(function(resolve, reject) {
