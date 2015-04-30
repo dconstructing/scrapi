@@ -5,6 +5,7 @@ var Promise = require('promise');
 // custom
 var auth = require('./lib/auth');
 var client = require('./lib/client');
+var resources = require('./lib/resources');
 var router = require('./lib/router');
 
 var Baas = function(config) {
@@ -18,6 +19,7 @@ var Baas = function(config) {
 	router.staticRoute('/public', config.static.dir);
 	router.defaultRoute(config.static.dir);
 	auth.configure(config.auth);
+	resources.initialize(config.data);
 
 	var getPort = function() {
 		var promise = new Promise(function(resolve, reject) {
