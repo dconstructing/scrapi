@@ -17,7 +17,6 @@ var Baas = function(config) {
 
 	app.use(bodyParser.json());
 	router.staticRoute('/public', config.static.dir);
-	router.defaultRoute(config.static.dir);
 	auth.configure(config.auth);
 	resources.initialize(config.data);
 
