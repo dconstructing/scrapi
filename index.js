@@ -1,3 +1,5 @@
+var http = require('http');
+// 3rd party
 var bodyParser = require('body-parser');
 var express = require('express');
 var portscanner = require('portscanner');
@@ -5,6 +7,7 @@ var Promise = require('promise');
 // custom
 var auth = require('./lib/auth');
 var client = require('./lib/client');
+var realtime = require('./lib/realtime');
 var resources = require('./lib/resources');
 var router = require('./lib/router');
 
@@ -19,6 +22,10 @@ var Baas = function(config) {
 	router.staticRoute('/public', config.static.dir);
 	auth.configure(config.auth);
 	resources.initialize(config.data);
+
+	var server = http.createServer(app);
+
+	realtime.initialize(server);
 
 	var getPort = function() {
 		var promise = new Promise(function(resolve, reject) {
@@ -48,7 +55,7 @@ var Baas = function(config) {
 
 		if (!port) {
 			getPort().then(function(desiredPort) {
-				app.listen(desiredPort, function() {
+				server.listen(desiredPort, function() {
 					console.log('baas listening on port ' + desiredPort);
 				});
 			});
