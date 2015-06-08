@@ -50,13 +50,16 @@ var Baas = function(config) {
 		router.addPost(path, callback);
 	};
 
-	this.start = function() {
+	this.start = function(callback) {
 		router.attach('/', app);
 
 		if (!port) {
 			getPort().then(function(desiredPort) {
 				server.listen(desiredPort, function() {
 					console.log('baas listening on port ' + desiredPort);
+					callback({
+						port: desiredPort
+					});
 				});
 			});
 		}
