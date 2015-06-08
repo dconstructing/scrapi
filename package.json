@@ -4,8 +4,10 @@
   "description": "Modular Backend as a Service",
   "main": "index.js",
   "scripts": {
-    "build": "cp -Rf bower_components/* public/lib/",
     "test": "mocha"
+    "clean": "rm -Rf public/lib/*",
+    "copy": "cp -Rf bower_components/* public/lib/",
+    "build": "npm run clean && npm run copy",
   },
   "keywords": [
     "baas"
