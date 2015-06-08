@@ -15,7 +15,7 @@
     <link rel="import" href="/baas/lib/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="/baas/components/baas-user/baas-user.html">
 
-    <link rel="import" href="/baas/routes.html">
+    <!-- <link rel="import" href="/baas/routes.html"> -->
 
     <style>
       core-pages section {
@@ -32,6 +32,13 @@
   <body unresolved>
     <div id="result"></div>
     <template id="baas-main" is="auto-binding">
+      <more-routing-config driver="path"></more-routing-config>
+
+      <more-route name="home" path="/dashboard">
+        <more-route name="users" path="/users"></more-route>
+        <more-route name="motes" path="/motes"></more-route>
+      </more-route>
+
       <core-drawer-panel>
         <core-header-panel drawer>
           <core-toolbar>Main</core-toolbar>
