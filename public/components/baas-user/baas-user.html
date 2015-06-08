@@ -2,8 +2,7 @@
 
 <link rel="import" href="../../lib/paper-checkbox/paper-checkbox.html">
 
-<polymer-element name="baas-user" attributes="user">
-<template>
+<dom-module id="baas-user">
 	<style>
 		:host {
 			align-content: space-between;
@@ -24,36 +23,39 @@
 		}
 	</style>
 
-	<p>{{user.email}}</p>
-	<div id="permissions">
-		<paper-checkbox label="Read" on-change="{{readChanged}}" checked?={{user.permissions.resources.read}}></paper-checkbox>
-		<paper-checkbox label="Write" on-change="{{writeChanged}}" checked?={{user.permissions.resources.write}}></paper-checkbox>
-		<paper-checkbox label="Admin" on-change="{{adminChanged}}" checked?={{user.permissions.admin}}></paper-checkbox>
-	</div>
-</template>
-<script>
-	(function() {
-		Polymer({
-			created: function() {
-				this.user = {
-					permissions: {}
-				};
-			},
+	<template>
+		<p>{{user.email}}</p>
+		<div id="permissions">
+			<paper-checkbox label="Read" on-change="readChanged" checked$="{{user.permissions.resources.read}}"></paper-checkbox>
+			<paper-checkbox label="Write" on-change="writeChanged" checked$="{{user.permissions.resources.write}}"></paper-checkbox>
+			<paper-checkbox label="Admin" on-change="adminChanged" checked$="{{user.permissions.admin}}"></paper-checkbox>
+		</div>
+	</template>
+</dom-module>
 
-			readChanged: function(event, details, sender) {
-				this.user.permissions.resources.read = sender.checked;
-				this.fire('user-updated', this.user);
-			},
-			writeChanged: function(event, details, sender) {
-				this.user.permissions.resources.write = sender.checked;
-				this.fire('user-updated', this.user);
-			},
-			adminChanged: function(event, details, sender) {
-				console.log('details', details);
-				this.user.permissions.admin = sender.checked;
-				this.fire('user-updated', this.user);
+<script>
+	Polymer({
+		is: 'baas-user',
+
+		properties: {
+			user: {
+				type: Object,
+				value: function() { return {}; }
 			}
-		});
-	})();
+		},
+
+		readChanged: function(event, details, sender) {
+			this.user.permissions.resources.read = sender.checked;
+			this.fire('user-updated', this.user);
+		},
+		writeChanged: function(event, details, sender) {
+			this.user.permissions.resources.write = sender.checked;
+			this.fire('user-updated', this.user);
+		},
+		adminChanged: function(event, details, sender) {
+			console.log('details', details);
+			this.user.permissions.admin = sender.checked;
+			this.fire('user-updated', this.user);
+		}
+	});
 </script>
-</polymer-element>
