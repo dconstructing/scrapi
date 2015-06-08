@@ -31,7 +31,7 @@
   </head>
   <body unresolved>
     <div id="result"></div>
-    <template id="main" is="auto-binding">
+    <template id="baas-main" is="auto-binding">
       <core-drawer-panel>
         <core-header-panel drawer>
           <core-toolbar>Main</core-toolbar>
@@ -94,7 +94,14 @@
 
       var token;
 
-      var template = document.getElementById('main');
+      var template = document.getElementById('baas-main');
+      template.accessPermitted = function(userData) {
+        // do something to actually check access
+        if (userData.permissions && userData.permissions.admin) {
+          return true;
+        }
+        return false;
+      };
       template.userData = {};
       template.users = {};
       template.signedIn = function(event, detail, sender) {
@@ -114,13 +121,6 @@
       template.signedOut = function(event, detail, sender) {
         template.userData = {};
         // clearData();
-      };
-      template.accessPermitted = function(userData) {
-        // do something to actually check access
-        if (userData.permissions && userData.permissions.admin) {
-          return true;
-        }
-        return false;
       };
       template.userUpdated = function(event, details, sender) {
         var xhr = new XMLHttpRequest();
