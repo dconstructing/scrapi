@@ -50,6 +50,7 @@
               <paper-menu>
                 <paper-item route="home">Dashboard</paper-item>
                 <paper-item route="users">Users</paper-item>
+                <paper-item route="motes">Motes</paper-item>
               </paper-menu>
             </more-route-selector>
           </template>
@@ -70,6 +71,20 @@
                   <template is="dom-if" if="{{accessPermitted(userData)}}">
                     <template is="dom-repeat" items="{{resources.users}}">
                       <baas-user user="{{item}}" on-user-updated="userUpdated"></baas-user>
+                    </template>
+                  </template>
+                </section>
+                <section route="motes">
+                  <template is="dom-if" if="{{accessPermitted(userData)}}">
+                    <template is="dom-repeat" items="{{resources.motes}}">
+                      <form on-submit="moteUpdated">
+                        <input type="hidden" name="index" value="{{index}}" />
+                        <input type="hidden" name="_id" value="{{item._id}}" />
+                        <input type="text" name="label" value="{{item.label::input}}" />
+                        <input type="text" name="type" value="{{item.type}}" />
+                        <input type="text" name="state" value="{{item.state}}" />
+                        <button type="submit">Save</button>
+                      </form>
                     </template>
                   </template>
                 </section>
@@ -111,7 +126,12 @@
         return false;
       };
       template.userData = {};
-      template.users = {};
+      template.availableResources = [];
+      template.resources = {
+        motes: [],
+        users: []
+      };
+
       template.signedIn = function(event, detail, sender) {
         console.log('signed in', detail);
         if (detail.access_token) {
@@ -139,18 +159,45 @@
           console.log('put', this.response);
         };
         xhr.send(JSON.stringify(details));
-      }
+      };
 
       var loadData = function() {
         if (template.accessPermitted(template.userData)) {
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', '/users', true);
+          xhr.open('GET', '/resources', true);
           xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+          xhr.setRequestHeader('Accept', 'application/json');
           xhr.onload = function(e) {
-            template.users = JSON.parse(this.response);
+            console.log('resources', JSON.parse(this.response));
+
+            template.availableResources = JSON.parse(this.response);
+            var container = document.querySelector('more-route-selector > paper-menu');
+            template.availableResources.forEach(function(resource) {
+              loadResource(resource);
+              // var item = document.createElement('paper-item');
+              // item.setAttribute('route', resource);
+              // item.textContent = resource;
+              // // item.addEventListener('tap', template.resourceSelected);
+              // container.appendChild(item);
+            });
+            // document.querySelector('more-route-selector')._updateRoutes();
           };
           xhr.send();
         }
+      };
+      var loadResource = function(type) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/' + type, true);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.onload = function(e) {
+          var json = JSON.parse(this.response);
+          console.log(type, json);
+          json.forEach(function(resource) {
+            template.push('resources.'+type, resource);
+          });
+        };
+        xhr.send();
       };
     </script>
   </body>
