@@ -45,16 +45,16 @@
 		},
 
 		readChanged: function(event, details, sender) {
-			this.user.permissions.resources.read = sender.checked;
+			this.user.permissions.resources.read = event.target.checked;
 			this.fire('user-updated', this.user);
 		},
 		writeChanged: function(event, details, sender) {
-			this.user.permissions.resources.write = sender.checked;
+			this.user.permissions.resources.write = event.target.checked;
 			this.fire('user-updated', this.user);
 		},
 		adminChanged: function(event, details, sender) {
 			console.log('details', details);
-			this.user.permissions.admin = sender.checked;
+			this.user.permissions.admin = event.target.checked;
 			this.fire('user-updated', this.user);
 		}
 	});
