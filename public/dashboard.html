@@ -33,7 +33,7 @@
   </head>
   <body>
     <div id="result"></div>
-    <template id="baas-main" is="dom-bind">
+    <template id="baasMain" is="dom-bind">
       <more-routing-config driver="path"></more-routing-config>
 
       <more-route name="home" path="/dashboard">
@@ -116,7 +116,7 @@
 
       var token;
 
-      var template = document.getElementById('baas-main');
+      var template = document.getElementById('baasMain');
       template.accessPermitted = function(userData) {
         // do something to actually check access
         if (userData.permissions && userData.permissions.admin) {
