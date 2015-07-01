@@ -18,7 +18,7 @@
     "tests"
   ],
   "dependencies": {
-    "google-signin": "GoogleWebComponents/google-signin#~1.0.2",
+    "google-signin": "GoogleWebComponents/google-signin#~1.0.3",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#~1.0.4",
     "iron-pages": "PolymerElements/iron-pages#~1.0.2",
     "more-routing": "PolymerLabs/more-routing#~1.0.0",
@@ -29,7 +29,6 @@
     "paper-item": "PolymerElements/paper-item#~1.0.1",
     "paper-menu": "PolymerElements/paper-menu#~1.0.0",
     "paper-toolbar": "PolymerElements/paper-toolbar#~1.0.2",
-    "polymer": "^1.0.4",
     "test-fixture": "PolymerElements/test-fixture#~1.0.0"
   }
 }
