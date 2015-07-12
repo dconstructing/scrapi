@@ -9,6 +9,14 @@ Scrapi can be used to setup a simple CRUD backend server with a REST interface, 
 
 Basic Google Auth protected CRUD backend
 
+Allows:
+
+Request | Description
+--- | ---
+`POST /<resourceType>` with JSON payload | Create Resource
+`PUT /<resourceType>/<resourceId>` with JSON payload | Overwrite Resource
+`GET /<resourceType>/<resourceId>` | Retrieve Resource
+
 ```js
 var Scrapi = require('scrapi');
 
@@ -42,10 +50,13 @@ var config = {
 
 var scrapi = new Scrapi(config);
 
+// Get the client for internal use
+var scrapiClient = scrapi.getClient();
+
 // Create a custom REST endpoint to trigger custom logic
 // Will create:
-// POST /user/<userId>/congratulate
-scrapi.addCommand('user', 'congratulate', function(req, res) {
+// POST /users/<userId>/congratulate
+scrapi.addCommand('users', 'congratulate', function(req, res) {
 	// do custom logic to congratulate user
 });
 
@@ -55,7 +66,7 @@ scrapi.start(function(data) {
 });
 ```
 
-## Configuration
+### Configuration
 
 `auth` - Configures how data access should be authorized. Only Google auth is supported (shown below) (default: disabled).
 
@@ -88,3 +99,17 @@ var config = {
 	}
 };
 ```
+
+### Internal client
+
+The internal client provides your app with access to your data, ensuring changes will notify all interested clients.
+
+The internal client contains functions that resemble the `GET`, `POST`, and `PUT` REST methods.
+
+function | description
+--- | ---
+`get(type, filter)` | Retrieve a certain type of data that matches the given filter. `type` is a string. `filter` is either a resourceId string or an object that matches the specificiations of a [mongodb query](http://docs.mongodb.org/manual/reference/method/db.collection.find/)
+`post(type, data)` | Store the provided data as the given type. `type` is a string. `data` is a JSON document
+`put(type, id, data)` | Overwrite the stored data of the given type and id with the provided data. `type` is a string. `id` is a resourceId string. `data` is a JSON document.
+
+These functions each return a Promise. The `get()` and `post()` function Promises resolve to the JSON document requested or added. The `put()` function Promise resolves to an object with parameters matching the `put()` args.
