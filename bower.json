@@ -1,12 +1,15 @@
 {
-  "name": "baas",
+  "name": "scrapi",
   "main": "index.js",
   "version": "0.0.0",
   "authors": [
     "David Cox <losttime.shuffle@gmail.com>"
   ],
   "keywords": [
-    "baas"
+    "api",
+    "baas",
+    "nobackend",
+    "rest"
   ],
   "license": "MIT",
   "homepage": "dashboard.html",

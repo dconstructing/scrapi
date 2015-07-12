@@ -11,7 +11,7 @@ var realtime = require('./lib/realtime');
 var resources = require('./lib/resources');
 var router = require('./lib/router');
 
-var Baas = function(config) {
+var Scrapi = function(config) {
 	if (!config) {
 		config = {};
 	}
@@ -56,7 +56,7 @@ var Baas = function(config) {
 		if (!port) {
 			getPort().then(function(desiredPort) {
 				server.listen(desiredPort, function() {
-					console.log('baas listening on port ' + desiredPort);
+					console.log('Scrapi listening on port ' + desiredPort);
 					callback({
 						port: desiredPort
 					});
@@ -66,4 +66,4 @@ var Baas = function(config) {
 	};
 };
 
-module.exports = Baas;
+module.exports = Scrapi;

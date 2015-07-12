@@ -1,7 +1,7 @@
 {
-  "name": "baas",
+  "name": "scrapi",
   "version": "0.0.0",
-  "description": "Modular Backend as a Service",
+  "description": "Data manager with a flexible API",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
@@ -10,7 +10,10 @@
     "build": "npm run clean && npm run copy",
   },
   "keywords": [
-    "baas"
+    "api",
+    "baas",
+    "nobackend",
+    "rest"
   ],
   "author": "David Cox <losttime.shuffle@gmail.com>",
   "license": "MIT",

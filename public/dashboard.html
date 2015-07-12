@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="shortcut icon" href="/baas/favicon.ico">
+    <link rel="shortcut icon" href="/scrapi/favicon.ico">
 
-    <script type="text/javascript" src="/baas/lib/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="/baas/lib/paper-drawer-panel/paper-drawer-panel.html">
-    <link rel="import" href="/baas/lib/paper-header-panel/paper-header-panel.html">
-    <link rel="import" href="/baas/lib/paper-item/paper-item.html">
-    <link rel="import" href="/baas/lib/paper-menu/paper-menu.html">
-    <link rel="import" href="/baas/lib/iron-icons/iron-icons.html">
-    <link rel="import" href="/baas/lib/iron-iconset-svg/iron-iconset-svg.html">
-    <link rel="import" href="/baas/lib/iron-pages/iron-pages.html">
-    <link rel="import" href="/baas/lib/paper-toolbar/paper-toolbar.html">
-    <link rel="import" href="/baas/lib/google-signin/google-signin.html">
-    <link rel="import" href="/baas/lib/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="/baas/lib/more-routing/more-routing.html">
-    <link rel="import" href="/baas/components/baas-user/baas-user.html">
-
-    <!-- <link rel="import" href="/baas/routes.html"> -->
+    <script type="text/javascript" src="/scrapi/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="/scrapi/lib/google-signin/google-signin.html">
+    <link rel="import" href="/scrapi/lib/iron-icons/iron-icons.html">
+    <link rel="import" href="/scrapi/lib/iron-iconset-svg/iron-iconset-svg.html">
+    <link rel="import" href="/scrapi/lib/iron-pages/iron-pages.html">
+    <link rel="import" href="/scrapi/lib/more-routing/more-routing.html">
+    <link rel="import" href="/scrapi/lib/paper-drawer-panel/paper-drawer-panel.html">
+    <link rel="import" href="/scrapi/lib/paper-header-panel/paper-header-panel.html">
+    <link rel="import" href="/scrapi/lib/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="/scrapi/lib/paper-item/paper-item.html">
+    <link rel="import" href="/scrapi/lib/paper-menu/paper-menu.html">
+    <link rel="import" href="/scrapi/lib/paper-toolbar/paper-toolbar.html">
+    <link rel="import" href="/scrapi/components/scrapi-resource/scrapi-resource.html">
 
     <style>
       iron-pages section {
         padding: 10px;
       }
-      baas-user:nth-child(odd) {
+      scrapi-resource:nth-child(odd) {
         background-color: #eee;
       }
-      baas-user:nth-child(even) {
+      scrapi-resource:nth-child(even) {
         background-color: #f7f7f7;
       }
     </style>
   </head>
   <body>
     <div id="result"></div>
-    <template id="baasMain" is="dom-bind">
+    <template id="appMain" is="dom-bind">
       <more-routing-config driver="path"></more-routing-config>
 
       <more-route name="home" path="/dashboard">
-        <more-route name="users" path="/users"></more-route>
+        <more-route name="users" path="/users">
+          <more-route name="user" path="/:id"></more-route>
+        </more-route>
         <more-route name="motes" path="/motes"></more-route>
       </more-route>
 
@@ -47,9 +47,9 @@
           <template is="dom-if" if="{{accessPermitted(userData)}}">
             <more-route-selector>
               <paper-menu>
-                <paper-item route="home">Dashboard</paper-item>
-                <paper-item route="users">Users</paper-item>
-                <paper-item route="motes">Motes</paper-item>
+                <paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
+                <paper-item route="users" paper-drawer-toggle>Users</paper-item>
+                <paper-item route="motes" paper-drawer-toggle>Motes</paper-item>
               </paper-menu>
             </more-route-selector>
           </template>
@@ -57,19 +57,19 @@
         <paper-header-panel main>
           <paper-toolbar>
             <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-            <div flex>Baas</div>
+            <div flex>Scrapi</div>
             <google-signin brand="google" client-id="985826165186-iichhauleh34tfcgu01a1n0ptdabjd0o.apps.googleusercontent.com" scopes="https://www.googleapis.com/auth/plus.login email" on-google-signin-aware-success="signedIn" on-google-signin-failure="notSignedIn" on-google-signin-aware-signed-out="signedOut"></google-signin>
           </paper-toolbar>
           <div class="container" fit vertical layout>
-            <more-route-selector>
+            <more-route-selector selected-params="{{params}}">
               <iron-pages flex>
                 <section route="home">
-                  <p>Welcome to Baas Dashboard!</p>
+                  <p>Welcome to Scrapi Dashboard!</p>
                 </section>
                 <section route="users">
                   <template is="dom-if" if="{{accessPermitted(userData)}}">
                     <template is="dom-repeat" items="{{resources.users}}">
-                      <baas-user user="{{item}}" on-user-updated="userUpdated"></baas-user>
+                      <scrapi-resource user="{{item}}" on-user-selected="userSelected" on-user-updated="userUpdated"></scrapi-resource>
                     </template>
                   </template>
                 </section>
@@ -94,7 +94,7 @@
       </paper-drawer-panel>
     </template>
     <script>
-      var Baas = function() {
+      var Page = function() {
         this.authenticateUser = function(unverifiedToken, callback) {
           var payload = {
             service: 'google',
@@ -112,11 +112,11 @@
         };
       };
 
-      var baas = new Baas();
+      var page = new Page();
 
       var token;
 
-      var template = document.getElementById('baasMain');
+      var template = document.getElementById('appMain');
       template.accessPermitted = function(userData) {
         // do something to actually check access
         if (userData.permissions && userData.permissions.admin) {
@@ -135,8 +135,9 @@
         console.log('signed in', detail);
         if (detail.access_token) {
           token = detail.access_token;
-          baas.authenticateUser(token, function(data) {
+          page.authenticateUser(token, function(data) {
             console.log('callback data', data);
+            // template.push('userData', data);
             template.userData = data;
             loadData();
           });
@@ -146,8 +147,13 @@
         console.log('not signed in', detail);
       };
       template.signedOut = function(event, detail, sender) {
+        // template.push('userData', {});
         template.userData = {};
         // clearData();
+      };
+      template.userSelected = function(event, detail, sender) {
+        console.log('userSelected', detail);
+        MoreRouting.navigateTo('user', {'id':detail._id});
       };
       template.userUpdated = function(event, details, sender) {
         var xhr = new XMLHttpRequest();
