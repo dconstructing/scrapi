@@ -1,6 +1,6 @@
 {
   "name": "scrapi",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Data manager with a flexible API",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,10 @@
     "clean": "rm -Rf public/lib/*",
     "copy": "cp -Rf bower_components/* public/lib/",
     "build": "npm run clean && npm run copy",
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dconstructing/scrapi.git"
   },
   "keywords": [
     "api",
@@ -17,6 +21,10 @@
   ],
   "author": "David Cox <losttime.shuffle@gmail.com>",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dconstructing/scrapi/issues"
+  },
+  "homepage": "https://github.com/dconstructing/scrapi",
   "dependencies": {
     "body-parser": "^1.12.3",
     "express": "^4.12.3",

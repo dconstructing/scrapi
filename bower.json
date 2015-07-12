@@ -1,7 +1,7 @@
 {
   "name": "scrapi",
   "main": "index.js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "authors": [
     "David Cox <losttime.shuffle@gmail.com>"
   ],
