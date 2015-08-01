@@ -1,0 +1,67 @@
+<link rel="import" href="../../lib/polymer/polymer.html">
+
+<link rel="import" href="../../lib/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="scrapi-user">
+	<style>
+		:host {
+			align-content: space-between;
+			align-items: center;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			justify-content: space-between;
+			padding: 15px;
+		}
+		p {
+			margin: 0px;
+		}
+		#permissions {
+		}
+		paper-checkbox {
+			padding: 0px 15px;
+		}
+	</style>
+
+	<template>
+		<p on-click="userSelected">{{user.email}}</p>
+		<div id="permissions">
+			<paper-checkbox label="Read" on-change="readChanged" checked$="{{user.permissions.resources.read}}"></paper-checkbox>
+			<paper-checkbox label="Write" on-change="writeChanged" checked$="{{user.permissions.resources.write}}"></paper-checkbox>
+			<paper-checkbox label="Admin" on-change="adminChanged" checked$="{{user.permissions.admin}}"></paper-checkbox>
+		</div>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'scrapi-user',
+
+		properties: {
+			user: {
+				type: Object,
+				value: function() { return {}; }
+			}
+		},
+
+		userSelected: function(event, detail, sender) {
+			event.preventDefault();
+			event.stopPropagation();
+			this.fire('user-selected', this.user);
+		},
+
+		readChanged: function(event, details, sender) {
+			this.user.permissions.resources.read = event.target.checked;
+			this.fire('user-updated', this.user);
+		},
+		writeChanged: function(event, details, sender) {
+			this.user.permissions.resources.write = event.target.checked;
+			this.fire('user-updated', this.user);
+		},
+		adminChanged: function(event, details, sender) {
+			console.log('details', details);
+			this.user.permissions.admin = event.target.checked;
+			this.fire('user-updated', this.user);
+		}
+	});
+</script>

@@ -16,15 +16,16 @@
     <link rel="import" href="/scrapi/lib/paper-menu/paper-menu.html">
     <link rel="import" href="/scrapi/lib/paper-toolbar/paper-toolbar.html">
     <link rel="import" href="/scrapi/components/scrapi-resource/scrapi-resource.html">
+    <link rel="import" href="/scrapi/components/scrapi-user/scrapi-user.html">
 
     <style>
       iron-pages section {
         padding: 10px;
       }
-      scrapi-resource:nth-child(odd) {
+      scrapi-user:nth-child(odd) {
         background-color: #eee;
       }
-      scrapi-resource:nth-child(even) {
+      scrapi-user:nth-child(even) {
         background-color: #f7f7f7;
       }
     </style>
@@ -38,7 +39,7 @@
         <more-route name="users" path="/users">
           <more-route name="user" path="/:id"></more-route>
         </more-route>
-        <more-route name="motes" path="/motes"></more-route>
+        <more-route name="resources" path="/resources/:type"></more-route>
       </more-route>
 
       <paper-drawer-panel>
@@ -49,7 +50,9 @@
               <paper-menu>
                 <paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
                 <paper-item route="users" paper-drawer-toggle>Users</paper-item>
-                <paper-item route="motes" paper-drawer-toggle>Motes</paper-item>
+                <template is="dom-repeat" items="{{resources}}">
+                  <paper-item route$="{{generateResourcePath(item)}}" paper-drawer-toggle>[[capitalize(item.type)]]</paper-item>
+                </template>
               </paper-menu>
             </more-route-selector>
           </template>
@@ -68,15 +71,15 @@
                 </section>
                 <section route="users">
                   <template is="dom-if" if="{{accessPermitted(userData)}}">
-                    <template is="dom-repeat" items="{{resources.users}}">
-                      <scrapi-resource user="{{item}}" on-user-selected="userSelected" on-user-updated="userUpdated"></scrapi-resource>
+                    <template is="dom-repeat" items="{{users}}">
+                      <scrapi-user user="{{item}}" on-user-selected="userSelected" on-user-updated="userUpdated"></scrapi-user>
                     </template>
                   </template>
                 </section>
-                <section route="motes">
+                <section route="resources">
                   <template is="dom-if" if="{{accessPermitted(userData)}}">
-                    <template is="dom-repeat" items="{{resources.motes}}">
-                      <form on-submit="moteUpdated">
+                    <template is="dom-repeat" items="{{resources}}">
+                      <form on-submit="resourceUpdated">
                         <input type="hidden" name="index" value="{{index}}" />
                         <input type="hidden" name="_id" value="{{item._id}}" />
                         <input type="text" name="label" value="{{item.label::input}}" />
@@ -126,10 +129,8 @@
       };
       template.userData = {};
       template.availableResources = [];
-      template.resources = {
-        motes: [],
-        users: []
-      };
+      template.users = [];
+      template.resources = [];
 
       template.signedIn = function(event, detail, sender) {
         console.log('signed in', detail);
@@ -166,8 +167,17 @@
         };
         xhr.send(JSON.stringify(details));
       };
-      template.moteUpdated = function(event, details, sender) {
-        console.log('mote updated', event, details, sender);
+      template.generateResourcePath = function(resource) {
+         console.log('generating path for', resource);
+         return '/dashboard/resources/' + resource.type;
+      };
+      template.capitalize = function(string) {
+         return string.toLowerCase().replace( /\b\w/g, function (m) {
+            return m.toUpperCase();
+         });
+      };
+      template.resourceUpdated = function(event, details, sender) {
+        console.log('resource updated', event, details, sender);
         event.preventDefault();
 
         var data = template.resources.motes[event.model.index];
@@ -201,7 +211,13 @@
 
             template.availableResources = JSON.parse(this.response);
             var container = document.querySelector('more-route-selector > paper-menu');
+            var newResources = [];
             template.availableResources.forEach(function(resource) {
+               if (resource !== 'users') {
+                  newResources.push({
+                     type: resource
+                  });
+               }
               loadResource(resource);
               // var item = document.createElement('paper-item');
               // item.setAttribute('route', resource);
@@ -209,7 +225,10 @@
               // // item.addEventListener('tap', template.resourceSelected);
               // container.appendChild(item);
             });
-            // document.querySelector('more-route-selector')._updateRoutes();
+            template.set('resources', newResources);
+            window.setTimeout(function() {
+               document.querySelectorAll('more-route-selector')[1]._updateRoutes();
+            }, 1);
           };
           xhr.send();
         }
@@ -222,9 +241,16 @@
         xhr.onload = function(e) {
           var json = JSON.parse(this.response);
           console.log(type, json);
-          json.forEach(function(resource) {
-            template.push('resources.'+type, resource);
-          });
+          if (type === 'users') {
+             template.set('users', json);
+          } else {
+             for (var i = 0; i < template.resources.length; i++) {
+                if (template.resources[i].type === type) {
+                   template.resources[i].resources = json;
+                   template.set('resources.' + i + '.resources', json);
+                }
+             }
+          }
         };
         xhr.send();
       };
