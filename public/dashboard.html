@@ -1,259 +1,253 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="shortcut icon" href="/scrapi/favicon.ico">
+	<head>
+		<link rel="shortcut icon" href="/scrapi/favicon.ico">
 
-    <script type="text/javascript" src="/scrapi/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="/scrapi/lib/google-signin/google-signin.html">
-    <link rel="import" href="/scrapi/lib/iron-icons/iron-icons.html">
-    <link rel="import" href="/scrapi/lib/iron-iconset-svg/iron-iconset-svg.html">
-    <link rel="import" href="/scrapi/lib/iron-pages/iron-pages.html">
-    <link rel="import" href="/scrapi/lib/more-routing/more-routing.html">
-    <link rel="import" href="/scrapi/lib/paper-drawer-panel/paper-drawer-panel.html">
-    <link rel="import" href="/scrapi/lib/paper-header-panel/paper-header-panel.html">
-    <link rel="import" href="/scrapi/lib/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="/scrapi/lib/paper-item/paper-item.html">
-    <link rel="import" href="/scrapi/lib/paper-menu/paper-menu.html">
-    <link rel="import" href="/scrapi/lib/paper-toolbar/paper-toolbar.html">
-    <link rel="import" href="/scrapi/components/scrapi-resource/scrapi-resource.html">
-    <link rel="import" href="/scrapi/components/scrapi-user/scrapi-user.html">
+		<script type="text/javascript" src="/scrapi/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
+		<link rel="import" href="/scrapi/lib/google-signin/google-signin.html">
+		<link rel="import" href="/scrapi/lib/iron-icons/iron-icons.html">
+		<link rel="import" href="/scrapi/lib/iron-iconset-svg/iron-iconset-svg.html">
+		<link rel="import" href="/scrapi/lib/iron-pages/iron-pages.html">
+		<link rel="import" href="/scrapi/lib/more-routing/more-routing.html">
+		<link rel="import" href="/scrapi/lib/paper-drawer-panel/paper-drawer-panel.html">
+		<link rel="import" href="/scrapi/lib/paper-header-panel/paper-header-panel.html">
+		<link rel="import" href="/scrapi/lib/paper-icon-button/paper-icon-button.html">
+		<link rel="import" href="/scrapi/lib/paper-item/paper-item.html">
+		<link rel="import" href="/scrapi/lib/paper-menu/paper-menu.html">
+		<link rel="import" href="/scrapi/lib/paper-toolbar/paper-toolbar.html">
+		<link rel="import" href="/scrapi/components/scrapi-resource/scrapi-resource.html">
+		<link rel="import" href="/scrapi/components/scrapi-user/scrapi-user.html">
 
-    <style>
-      iron-pages section {
-        padding: 10px;
-      }
-      scrapi-user:nth-child(odd) {
-        background-color: #eee;
-      }
-      scrapi-user:nth-child(even) {
-        background-color: #f7f7f7;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="result"></div>
-    <template id="appMain" is="dom-bind">
-      <more-routing-config driver="path"></more-routing-config>
+		<style>
+			iron-pages section {
+				padding: 10px;
+			}
+			scrapi-user:nth-child(odd) {
+				background-color: #eee;
+			}
+			scrapi-user:nth-child(even) {
+				background-color: #f7f7f7;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="result"></div>
+		<template id="appMain" is="dom-bind">
+			<more-routing-config driver="path"></more-routing-config>
 
-      <more-route name="home" path="/dashboard">
-        <more-route name="users" path="/users">
-          <more-route name="user" path="/:id"></more-route>
-        </more-route>
-        <more-route name="resources" path="/resources/:type"></more-route>
-      </more-route>
+			<more-route name="home" path="/dashboard">
+				<more-route name="users" path="/users">
+					<more-route name="user" path="/:id"></more-route>
+				</more-route>
+				<more-route name="resources" path="/resources/:type"></more-route>
+			</more-route>
 
-      <paper-drawer-panel>
-        <paper-header-panel drawer>
-          <paper-toolbar>Main</paper-toolbar>
-          <template is="dom-if" if="{{accessPermitted(userData)}}">
-            <more-route-selector>
-              <paper-menu>
-                <paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
-                <paper-item route="users" paper-drawer-toggle>Users</paper-item>
-                <template is="dom-repeat" items="{{resources}}">
-                  <paper-item route$="{{generateResourcePath(item)}}" paper-drawer-toggle>[[capitalize(item.type)]]</paper-item>
-                </template>
-              </paper-menu>
-            </more-route-selector>
-          </template>
-        </paper-header-panel>
-        <paper-header-panel main>
-          <paper-toolbar>
-            <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-            <div flex>Scrapi</div>
-            <google-signin brand="google" client-id="985826165186-iichhauleh34tfcgu01a1n0ptdabjd0o.apps.googleusercontent.com" scopes="https://www.googleapis.com/auth/plus.login email" on-google-signin-aware-success="signedIn" on-google-signin-failure="notSignedIn" on-google-signin-aware-signed-out="signedOut"></google-signin>
-          </paper-toolbar>
-          <div class="container" fit vertical layout>
-            <more-route-selector selected-params="{{params}}">
-              <iron-pages flex>
-                <section route="home">
-                  <p>Welcome to Scrapi Dashboard!</p>
-                </section>
-                <section route="users">
-                  <template is="dom-if" if="{{accessPermitted(userData)}}">
-                    <template is="dom-repeat" items="{{users}}">
-                      <scrapi-user user="{{item}}" on-user-selected="userSelected" on-user-updated="userUpdated"></scrapi-user>
-                    </template>
-                  </template>
-                </section>
-                <section route="resources">
-                  <template is="dom-if" if="{{accessPermitted(userData)}}">
-                    <template is="dom-repeat" items="{{resources}}">
-                      <form on-submit="resourceUpdated">
-                        <input type="hidden" name="index" value="{{index}}" />
-                        <input type="hidden" name="_id" value="{{item._id}}" />
-                        <input type="text" name="label" value="{{item.label::input}}" />
-                        <input type="text" name="type" value="{{item.type}}" />
-                        <input type="text" name="state" value="{{item.state}}" />
-                        <button type="submit">Save</button>
-                      </form>
-                    </template>
-                  </template>
-                </section>
-              </iron-pages>
-            </more-route-selector>
-          </div>
-        </paper-header-panel>
-      </paper-drawer-panel>
-    </template>
-    <script>
-      var Page = function() {
-        this.authenticateUser = function(unverifiedToken, callback) {
-          var payload = {
-            service: 'google',
-            token: unverifiedToken
-          };
+			<paper-drawer-panel>
+				<paper-header-panel drawer>
+					<paper-toolbar>Main</paper-toolbar>
+					<template is="dom-if" if="{{accessPermitted(userData)}}">
+						<more-route-selector>
+							<paper-menu>
+								<paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
+								<paper-item route="users" paper-drawer-toggle>Users</paper-item>
+								<template is="dom-repeat" items="{{resources}}">
+									<paper-item route$="{{generateResourcePath(item)}}" paper-drawer-toggle>[[capitalize(item.type)]]</paper-item>
+								</template>
+							</paper-menu>
+						</more-route-selector>
+					</template>
+				</paper-header-panel>
+				<paper-header-panel main>
+					<paper-toolbar>
+						<paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+						<div flex>Scrapi</div>
+						<google-signin brand="google" client-id="985826165186-iichhauleh34tfcgu01a1n0ptdabjd0o.apps.googleusercontent.com" scopes="https://www.googleapis.com/auth/plus.login email" on-google-signin-aware-success="signedIn" on-google-signin-failure="notSignedIn" on-google-signin-aware-signed-out="signedOut"></google-signin>
+					</paper-toolbar>
+					<div class="container" fit vertical layout>
+						<more-route-selector selected-params="{{params}}">
+							<iron-pages flex>
+								<section route="home">
+									<p>Welcome to Scrapi Dashboard!</p>
+								</section>
+								<section route="users">
+									<template is="dom-if" if="{{accessPermitted(userData)}}">
+										<template is="dom-repeat" items="{{users}}">
+											<scrapi-user user="{{item}}" on-user-selected="userSelected" on-user-updated="userUpdated"></scrapi-user>
+										</template>
+									</template>
+								</section>
+								<section route="resources">
+									<template is="dom-if" if="{{accessPermitted(userData)}}">
+										<template is="dom-repeat" items="{{resources}}">
+											<form on-submit="resourceUpdated">
+												<input type="hidden" name="index" value="{{index}}" />
+												<input type="hidden" name="_id" value="{{item._id}}" />
+												<input type="text" name="label" value="{{item.label::input}}" />
+												<input type="text" name="type" value="{{item.type}}" />
+												<input type="text" name="state" value="{{item.state}}" />
+												<button type="submit">Save</button>
+											</form>
+										</template>
+									</template>
+								</section>
+							</iron-pages>
+						</more-route-selector>
+					</div>
+				</paper-header-panel>
+			</paper-drawer-panel>
+		</template>
 
-          var xhr = new XMLHttpRequest();
-          xhr.open('POST', '/auth/social', true);
-          xhr.setRequestHeader('Content-Type', 'application/json');
-          xhr.onload = function(e) {
-            var data = JSON.parse(this.response);
-            callback(data);
-          };
-          xhr.send(JSON.stringify(payload));
-        };
-      };
+		<script>
+			var Page = function() {
+				this.authenticateUser = function(unverifiedToken, callback) {
+					var payload = {
+						service: 'google',
+						token: unverifiedToken
+					};
 
-      var page = new Page();
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/auth/social', true);
+					xhr.setRequestHeader('Content-Type', 'application/json');
+					xhr.onload = function(e) {
+						var data = JSON.parse(this.response);
+						callback(data);
+					};
+					xhr.send(JSON.stringify(payload));
+				};
+			};
 
-      var token;
+			var page = new Page();
 
-      var template = document.getElementById('appMain');
-      template.accessPermitted = function(userData) {
-        // do something to actually check access
-        if (userData.permissions && userData.permissions.admin) {
-          return true;
-        }
-        return false;
-      };
-      template.userData = {};
-      template.availableResources = [];
-      template.users = [];
-      template.resources = [];
+			var token;
 
-      template.signedIn = function(event, detail, sender) {
-        console.log('signed in', detail);
-        if (detail.access_token) {
-          token = detail.access_token;
-          page.authenticateUser(token, function(data) {
-            console.log('callback data', data);
-            // template.push('userData', data);
-            template.userData = data;
-            loadData();
-          });
-        }
-      };
-      template.notSignedIn = function(event, detail, sender) {
-        console.log('not signed in', detail);
-      };
-      template.signedOut = function(event, detail, sender) {
-        // template.push('userData', {});
-        template.userData = {};
-        // clearData();
-      };
-      template.userSelected = function(event, detail, sender) {
-        console.log('userSelected', detail);
-        MoreRouting.navigateTo('user', {'id':detail._id});
-      };
-      template.userUpdated = function(event, details, sender) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('PUT', '/users/' + details._id, true);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.setRequestHeader('Accept', 'application/json');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function(e) {
-          console.log('put', this.response);
-        };
-        xhr.send(JSON.stringify(details));
-      };
-      template.generateResourcePath = function(resource) {
-         console.log('generating path for', resource);
-         return '/dashboard/resources/' + resource.type;
-      };
-      template.capitalize = function(string) {
-         return string.toLowerCase().replace( /\b\w/g, function (m) {
-            return m.toUpperCase();
-         });
-      };
-      template.resourceUpdated = function(event, details, sender) {
-        console.log('resource updated', event, details, sender);
-        event.preventDefault();
+			var template = document.getElementById('appMain');
+			template.accessPermitted = function(userData) {
+				// do something to actually check access
+				if (userData.permissions && userData.permissions.admin) {
+					return true;
+				}
+				return false;
+			};
+			template.userData = {};
+			template.availableResources = [];
+			template.users = [];
+			template.resources = [];
 
-        var data = template.resources.motes[event.model.index];
-        var data = event.model.item;
-        console.log('data', data);
+			template.signedIn = function(event, detail, sender) {
+				console.log('signed in', detail);
+				if (detail.access_token) {
+					token = detail.access_token;
+					page.authenticateUser(token, function(data) {
+						console.log('callback data', data);
+						// template.push('userData', data);
+						template.userData = data;
+						loadData();
+					});
+				}
+			};
+			template.notSignedIn = function(event, detail, sender) {
+				console.log('not signed in', detail);
+			};
+			template.signedOut = function(event, detail, sender) {
+				template.userData = {};
+			};
+			template.userSelected = function(event, detail, sender) {
+				console.log('userSelected', detail);
+				MoreRouting.navigateTo('user', {'id':detail._id});
+			};
+			template.userUpdated = function(event, details, sender) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('PUT', '/users/' + details._id, true);
+				xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+				xhr.setRequestHeader('Accept', 'application/json');
+				xhr.setRequestHeader('Content-Type', 'application/json');
+				xhr.onload = function(e) {
+					console.log('put', this.response);
+				};
+				xhr.send(JSON.stringify(details));
+			};
+			template.generateResourcePath = function(resource) {
+				console.log('generating path for', resource);
+				return '/dashboard/resources/' + resource.type;
+			};
+			template.capitalize = function(string) {
+				return string.toLowerCase().replace( /\b\w/g, function (m) {
+					return m.toUpperCase();
+				});
+			};
+			template.resourceUpdated = function(event, details, sender) {
+				console.log('resource updated', event, details, sender);
+				event.preventDefault();
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('PUT', '/motes/' + data._id, true);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.setRequestHeader('Accept', 'application/json');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function(e) {
-          console.log('put', this.response);
-        };
-        xhr.send(JSON.stringify(data));
-        event.preventDefault();
-      };
-      template.resourceSelected = function(event, details, sender) {
-        sender = sender || event.target;
-        MoreRouting.navigateTo('resource', {resourceType: sender.getAttribute('resource-type')});
-      };
+				var data = template.resources.motes[event.model.index];
+				var data = event.model.item;
+				console.log('data', data);
 
-      var loadData = function() {
-        if (template.accessPermitted(template.userData)) {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', '/resources', true);
-          xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-          xhr.setRequestHeader('Accept', 'application/json');
-          xhr.onload = function(e) {
-            console.log('resources', JSON.parse(this.response));
+				var xhr = new XMLHttpRequest();
+				xhr.open('PUT', '/motes/' + data._id, true);
+				xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+				xhr.setRequestHeader('Accept', 'application/json');
+				xhr.setRequestHeader('Content-Type', 'application/json');
+				xhr.onload = function(e) {
+					console.log('put', this.response);
+				};
+				xhr.send(JSON.stringify(data));
+				event.preventDefault();
+			};
+			template.resourceSelected = function(event, details, sender) {
+				sender = sender || event.target;
+				MoreRouting.navigateTo('resource', {resourceType: sender.getAttribute('resource-type')});
+			};
 
-            template.availableResources = JSON.parse(this.response);
-            var container = document.querySelector('more-route-selector > paper-menu');
-            var newResources = [];
-            template.availableResources.forEach(function(resource) {
-               if (resource !== 'users') {
-                  newResources.push({
-                     type: resource
-                  });
-               }
-              loadResource(resource);
-              // var item = document.createElement('paper-item');
-              // item.setAttribute('route', resource);
-              // item.textContent = resource;
-              // // item.addEventListener('tap', template.resourceSelected);
-              // container.appendChild(item);
-            });
-            template.set('resources', newResources);
-            window.setTimeout(function() {
-               document.querySelectorAll('more-route-selector')[1]._updateRoutes();
-            }, 1);
-          };
-          xhr.send();
-        }
-      };
-      var loadResource = function(type) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/' + type, true);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.setRequestHeader('Accept', 'application/json');
-        xhr.onload = function(e) {
-          var json = JSON.parse(this.response);
-          console.log(type, json);
-          if (type === 'users') {
-             template.set('users', json);
-          } else {
-             for (var i = 0; i < template.resources.length; i++) {
-                if (template.resources[i].type === type) {
-                   template.resources[i].resources = json;
-                   template.set('resources.' + i + '.resources', json);
-                }
-             }
-          }
-        };
-        xhr.send();
-      };
-    </script>
-  </body>
+			var loadData = function() {
+				if (template.accessPermitted(template.userData)) {
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', '/resources', true);
+					xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+					xhr.setRequestHeader('Accept', 'application/json');
+					xhr.onload = function(e) {
+						console.log('resources', JSON.parse(this.response));
+
+						template.availableResources = JSON.parse(this.response);
+						var container = document.querySelector('more-route-selector > paper-menu');
+						var newResources = [];
+						template.availableResources.forEach(function(resource) {
+							if (resource !== 'users') {
+								newResources.push({
+									type: resource
+								});
+							}
+							loadResource(resource);
+						});
+						template.set('resources', newResources);
+						window.setTimeout(function() {
+							document.querySelectorAll('more-route-selector')[1]._updateRoutes();
+						}, 1);
+					};
+					xhr.send();
+				}
+			};
+			var loadResource = function(type) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', '/' + type, true);
+				xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+				xhr.setRequestHeader('Accept', 'application/json');
+				xhr.onload = function(e) {
+					var json = JSON.parse(this.response);
+					console.log(type, json);
+					if (type === 'users') {
+						template.set('users', json);
+					} else {
+						for (var i = 0; i < template.resources.length; i++) {
+							if (template.resources[i].type === type) {
+								template.resources[i].resources = json;
+								template.set('resources.' + i + '.resources', json);
+							}
+						}
+					}
+				};
+				xhr.send();
+			};
+		</script>
+	</body>
 </html>
