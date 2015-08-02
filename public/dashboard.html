@@ -47,7 +47,7 @@
 					<paper-toolbar>Main</paper-toolbar>
 					<template is="dom-if" if="{{accessPermitted(userData)}}">
 						<more-route-selector>
-							<paper-menu>
+							<paper-menu selected="{{menuItem}}">
 								<paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
 								<paper-item route="users" paper-drawer-toggle>Users</paper-item>
 								<template is="dom-repeat" items="{{resources}}">
@@ -64,7 +64,7 @@
 						<google-signin brand="google" client-id="985826165186-iichhauleh34tfcgu01a1n0ptdabjd0o.apps.googleusercontent.com" scopes="https://www.googleapis.com/auth/plus.login email" on-google-signin-aware-success="signedIn" on-google-signin-failure="notSignedIn" on-google-signin-aware-signed-out="signedOut"></google-signin>
 					</paper-toolbar>
 					<div class="container" fit vertical layout>
-						<more-route-selector selected-params="{{params}}">
+						<more-route-selector>
 							<iron-pages flex>
 								<section route="home">
 									<p>Welcome to Scrapi Dashboard!</p>
@@ -78,7 +78,7 @@
 								</section>
 								<section route="resources">
 									<template is="dom-if" if="{{accessPermitted(userData)}}">
-										<template is="dom-repeat" items="{{resources}}">
+										<template is="dom-repeat" items="{{selectedResourceSet(menuItem, resourcesKick)}}" observe="resources">
 											<form on-submit="resourceUpdated">
 												<input type="hidden" name="index" value="{{index}}" />
 												<input type="hidden" name="_id" value="{{item._id}}" />
@@ -132,6 +132,7 @@
 			template.availableResources = [];
 			template.users = [];
 			template.resources = [];
+			template.resourcesKick = 0;
 
 			template.signedIn = function(event, detail, sender) {
 				console.log('signed in', detail);
@@ -165,6 +166,11 @@
 					console.log('put', this.response);
 				};
 				xhr.send(JSON.stringify(details));
+			};
+			template.selectedResourceSet = function(menuIndex, kick) {
+				if (menuIndex > 1) {
+					return template.resources[menuIndex - 2].resources;
+				}
 			};
 			template.generateResourcePath = function(resource) {
 				console.log('generating path for', resource);
@@ -242,6 +248,7 @@
 							if (template.resources[i].type === type) {
 								template.resources[i].resources = json;
 								template.set('resources.' + i + '.resources', json);
+								template.set('resourcesKick', template.resourcesKick + 1)
 							}
 						}
 					}
