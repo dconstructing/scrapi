@@ -28,6 +28,15 @@
 			scrapi-user:nth-child(even) {
 				background-color: #f7f7f7;
 			}
+			section[route="resources"] ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			li.resource {
+				display: flex;
+				flex-direction: column;
+			}
 		</style>
 	</head>
 	<body>
@@ -47,7 +56,7 @@
 					<paper-toolbar>Main</paper-toolbar>
 					<template is="dom-if" if="{{accessPermitted(userData)}}">
 						<more-route-selector>
-							<paper-menu selected="{{menuItem}}">
+							<paper-menu selected="{{menuIndex}}">
 								<paper-item route="home" paper-drawer-toggle>Dashboard</paper-item>
 								<paper-item route="users" paper-drawer-toggle>Users</paper-item>
 								<template is="dom-repeat" items="{{resources}}">
@@ -78,16 +87,21 @@
 								</section>
 								<section route="resources">
 									<template is="dom-if" if="{{accessPermitted(userData)}}">
-										<template is="dom-repeat" items="{{selectedResourceSet(menuItem, resourcesKick)}}" observe="resources">
-											<form on-submit="resourceUpdated">
-												<input type="hidden" name="index" value="{{index}}" />
-												<input type="hidden" name="_id" value="{{item._id}}" />
-												<input type="text" name="label" value="{{item.label::input}}" />
-												<input type="text" name="type" value="{{item.type}}" />
-												<input type="text" name="state" value="{{item.state}}" />
-												<button type="submit">Save</button>
-											</form>
-										</template>
+										<ul>
+											<template is="dom-repeat" items="{{selectedResourceSet(menuIndex, resourcesKick)}}" as="resource">
+												<li class="resource">
+													<form on-submit="resourceUpdated">
+														<input type="hidden" name="index" value="{{index}}" />
+														<input type="hidden" name="_id" value="{{resource._id}}" />
+														<input type="text" name="label" value="{{resource.label::input}}" />
+														<input type="text" name="dataType" value="{{resource.dataType}}" />
+														<input type="text" name="connectionType" value="{{resource.connectionType}}" />
+														<input type="text" name="state" value="{{resource.state}}" />
+														<button type="submit">Save</button>
+													</form>
+												</li>
+											</template>
+										</ul>
 									</template>
 								</section>
 							</iron-pages>
@@ -168,8 +182,8 @@
 				xhr.send(JSON.stringify(details));
 			};
 			template.selectedResourceSet = function(menuIndex, kick) {
-				if (menuIndex > 1) {
-					return template.resources[menuIndex - 2].resources;
+				if (template.menuIndex > 1) {
+					return template.resources[template.menuIndex - 2].resources;
 				}
 			};
 			template.generateResourcePath = function(resource) {
@@ -185,20 +199,21 @@
 				console.log('resource updated', event, details, sender);
 				event.preventDefault();
 
-				var data = template.resources.motes[event.model.index];
-				var data = event.model.item;
-				console.log('data', data);
+				if (template.menuIndex > 1) {
+					var selectedType = template.resources[template.menuIndex - 2].type;
+					var data = event.model.item;
+					console.log('data', data);
 
-				var xhr = new XMLHttpRequest();
-				xhr.open('PUT', '/motes/' + data._id, true);
-				xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-				xhr.setRequestHeader('Accept', 'application/json');
-				xhr.setRequestHeader('Content-Type', 'application/json');
-				xhr.onload = function(e) {
-					console.log('put', this.response);
-				};
-				xhr.send(JSON.stringify(data));
-				event.preventDefault();
+					var xhr = new XMLHttpRequest();
+					xhr.open('PUT', '/' + selectedType + '/' + data._id, true);
+					xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+					xhr.setRequestHeader('Accept', 'application/json');
+					xhr.setRequestHeader('Content-Type', 'application/json');
+					xhr.onload = function(e) {
+						console.log('put', this.response);
+					};
+					xhr.send(JSON.stringify(data));
+				}
 			};
 			template.resourceSelected = function(event, details, sender) {
 				sender = sender || event.target;
